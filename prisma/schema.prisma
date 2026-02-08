@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum SubmissionType {
+  feedback
+  question
+}
+
+enum SubmissionStatus {
+  visible
+  hidden
+}
+
+enum Sentiment {
+  positive
+  neutral
+  negative
+}
+
+model Submission {
+  id                String           @id @default(cuid())
+  type              SubmissionType
+  category          String
+  sentiment         Sentiment?
+  text              String
+  tags              String?
+  randomDisplayName String
+  avatarColor       String
+  status            SubmissionStatus @default(visible)
+  featured          Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  answer            Answer?
+}
+
+model Answer {
+  id           String     @id @default(cuid())
+  submissionId String     @unique
+  text         String
+  isPublished  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  submission   Submission @relation(fields: [submissionId], references: [id])
+}
